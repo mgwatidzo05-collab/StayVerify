@@ -1,0 +1,6 @@
+{
+  "name": "StayVerify",
+  "description": "Verified student accommodation allocation and anti-scam platform featuring landlord identity checks, listing verification tiers, fraud reporting, and campus housing oversight.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
