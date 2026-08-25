@@ -270,7 +270,7 @@ export const SmartMatching: React.FC<{ onOpenListing: (listing: Listing) => void
                   {rankedListings.length} Options
                 </span>
               </h2>
-              <span className="text-xs text-slate-500">Sorted by algorithm match score</span>
+              <span className="text-xs text-slate-500">Sorted by preference compatibility score</span>
             </div>
 
             {rankedListings.map(({ listing, matchScore }) => (

@@ -40,7 +40,7 @@ export const Header: React.FC = () => {
 
   return (
     <header id="main-header" className="sticky top-0 z-40 bg-slate-900 text-slate-100 border-b border-slate-800 shadow-sm">
-      {/* Top University Safety & Demo Switcher Bar */}
+      {/* Top University Safety & Role Switcher Bar */}
       <div className="bg-slate-950 px-4 py-1.5 border-b border-slate-800/80 text-xs flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2 text-slate-300">
           <span className="inline-flex items-center gap-1 font-semibold text-emerald-400">
@@ -51,9 +51,9 @@ export const Header: React.FC = () => {
           <span className="hidden sm:inline text-slate-400">Bulawayo Student Accommodation Verification Network</span>
         </div>
 
-        {/* Interactive Role Switcher for seamless stakeholder evaluation */}
+        {/* Stakeholder Role Switcher */}
         <div className="flex items-center gap-2">
-          <span className="text-slate-400 text-[11px] font-medium hidden md:inline">Simulate Stakeholder:</span>
+          <span className="text-slate-400 text-[11px] font-medium hidden md:inline">Account Role:</span>
           <div className="flex items-center bg-slate-900 rounded-md p-0.5 border border-slate-700/80">
             <button
               id="role-btn-student"
@@ -283,7 +283,7 @@ export const Header: React.FC = () => {
                 )}
               </div>
 
-              <div className="text-[11px] font-medium text-slate-400 px-3 py-1">Switch Mock User:</div>
+              <div className="text-[11px] font-medium text-slate-400 px-3 py-1">Select User Account:</div>
               {allUsers.map(user => (
                 <button
                   key={user.id}

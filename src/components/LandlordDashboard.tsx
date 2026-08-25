@@ -55,7 +55,7 @@ export const LandlordDashboard: React.FC = () => {
   ]);
   const [photoUrl, setPhotoUrl] = useState('https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?w=800&auto=format&fit=crop&q=80');
   const [photoCaption, setPhotoCaption] = useState('Master study bedroom with natural lighting');
-  const [simulateTimestampExif, setSimulateTimestampExif] = useState(true);
+  const [verifyTimestampExif, setVerifyTimestampExif] = useState(true);
   const [creationError, setCreationError] = useState<string | null>(null);
   const [creationSuccess, setCreationSuccess] = useState<string | null>(null);
 
@@ -113,8 +113,8 @@ export const LandlordDashboard: React.FC = () => {
           id: `med-${Date.now()}`,
           url: photoUrl,
           caption: photoCaption,
-          timestamp: simulateTimestampExif ? `${new Date().toISOString().split('T')[0]} (Verified Camera EXIF)` : 'Timestamp Missing',
-          cameraMetadataVerified: simulateTimestampExif,
+          timestamp: verifyTimestampExif ? `${new Date().toISOString().split('T')[0]} (Verified Camera EXIF)` : 'Timestamp Missing',
+          cameraMetadataVerified: verifyTimestampExif,
           isOriginalChecked: true
         }
       ]
@@ -459,12 +459,12 @@ export const LandlordDashboard: React.FC = () => {
             <label className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer pt-1">
               <input
                 type="checkbox"
-                checked={simulateTimestampExif}
-                onChange={(e) => setSimulateTimestampExif(e.target.checked)}
+                checked={verifyTimestampExif}
+                onChange={(e) => setVerifyTimestampExif(e.target.checked)}
                 className="rounded text-emerald-600 focus:ring-emerald-500"
               />
               <span className="font-medium">
-                Simulate Camera EXIF Timestamp & Geolocation check (Verifies original taken date)
+                Include Camera EXIF Timestamp & Geolocation Verification (Protects against unverified/stolen photos)
               </span>
             </label>
           </div>

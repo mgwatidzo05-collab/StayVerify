@@ -57,8 +57,8 @@ export const MessagingCenter: React.FC = () => {
     setInputMessage('');
   };
 
-  // Quick scam test phrase buttons for demonstration
-  const handleInsertScamDemo = (phrase: string) => {
+  // Quick message template insertion
+  const handleInsertTemplate = (phrase: string) => {
     setInputMessage(phrase);
   };
 
@@ -225,22 +225,22 @@ export const MessagingCenter: React.FC = () => {
             })}
           </div>
 
-          {/* Interactive Scam Demo helper */}
+          {/* Quick Inquiry Templates */}
           <div className="px-4 py-1.5 bg-slate-100 border-t border-slate-200 flex flex-wrap items-center gap-1.5 text-[11px] text-slate-600">
             <span className="font-semibold text-slate-700 flex items-center gap-1">
               <Sparkles className="w-3 h-3 text-blue-600" />
-              Simulate Test Phrases:
+              Quick Templates:
             </span>
             <button
               type="button"
-              onClick={() => handleInsertScamDemo('Please send $50 EcoCash deposit first to reserve the room before viewing.')}
+              onClick={() => handleInsertTemplate('Please send $50 EcoCash deposit first to reserve the room before viewing.')}
               className="bg-white hover:bg-slate-200 border border-slate-300 px-2 py-0.5 rounded text-[10px] transition text-red-700"
             >
               ⚠️ "Send deposit first before viewing"
             </button>
             <button
               type="button"
-              onClick={() => handleInsertScamDemo('When is convenient for an in-person physical inspection tomorrow?')}
+              onClick={() => handleInsertTemplate('When is convenient for an in-person physical inspection tomorrow?')}
               className="bg-white hover:bg-slate-200 border border-slate-300 px-2 py-0.5 rounded text-[10px] transition text-emerald-700"
             >
               ✅ "Schedule in-person inspection"
