@@ -36,7 +36,11 @@ export const ListingDetailModal: React.FC<ListingDetailModalProps> = ({ listing,
     setReportTargetListing,
     setIsReportModalOpen,
     currentUser,
-    addReview
+    addReview,
+    formatPrice,
+    savedListingIds,
+    toggleSaveListing,
+    setIsSupportModalOpen
   } = useApp();
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -48,6 +52,7 @@ export const ListingDetailModal: React.FC<ListingDetailModalProps> = ({ listing,
   const listingReviews = reviews.filter(r => r.listingId === listing.id);
   const physicalVisit = physicalVisits.find(pv => pv.listingId === listing.id);
   const isSuspended = listing.status === 'suspended_under_review' || listing.status === 'banned';
+  const isSaved = savedListingIds.includes(listing.id);
 
   const handleCreateReview = (e: React.FormEvent) => {
     e.preventDefault();
@@ -168,35 +173,45 @@ export const ListingDetailModal: React.FC<ListingDetailModalProps> = ({ listing,
             </div>
 
             {/* Price & Landlord Card */}
-            <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-4">
-              <div>
-                <span className="text-xs text-slate-500 font-medium">Monthly Student Rate</span>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-extrabold text-slate-900">${listing.pricePerMonthUsd}</span>
-                  <span className="text-slate-500 text-xs font-semibold">USD / month</span>
+            <div className="bg-slate-50 rounded-2xl p-5 border border-slate-200 space-y-4">
+              <div className="flex items-start justify-between">
+                <div>
+                  <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Monthly Student Rate</span>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-3xl font-black text-rose-600">{formatPrice(listing.pricePerMonthUsd)}</span>
+                    <span className="text-slate-500 text-xs font-semibold">/ month</span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-0.5">Includes standard utilities, borehole water, Wi-Fi</p>
                 </div>
-                <p className="text-[11px] text-slate-500 mt-0.5">Includes standard utilities and Wi-Fi</p>
+
+                <button
+                  onClick={() => toggleSaveListing(listing.id)}
+                  className="p-2 rounded-xl bg-white hover:bg-rose-50 text-slate-700 hover:text-rose-600 border border-slate-200 transition shadow-2xs"
+                  title={isSaved ? 'Remove from Shortlist' : 'Add to Shortlist'}
+                >
+                  <span className="text-lg">{isSaved ? '❤️' : '🤍'}</span>
+                </button>
               </div>
 
               {/* Deposit Policy Shield */}
-              <div className="bg-white p-3 rounded-lg border border-emerald-200 text-xs space-y-1">
+              <div className="bg-emerald-50/90 p-3 rounded-xl border border-emerald-200 text-xs space-y-1">
                 <div className="flex items-center gap-1 font-bold text-emerald-800">
                   <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                  <span>Anti-Scam Deposit Rule</span>
+                  <span>Zero-Scam Deposit Rule</span>
                 </div>
                 <p className="text-[11px] text-slate-600 leading-snug">
-                  {listing.depositPolicy} (Required deposit: ${listing.depositRequiredUsd} USD).
+                  {listing.depositPolicy} (Required deposit: {formatPrice(listing.depositRequiredUsd)}).
                 </p>
               </div>
 
               {/* Landlord Identity Overview */}
               <div className="pt-2 border-t border-slate-200 space-y-2">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold">
+                  <div className="w-9 h-9 rounded-xl bg-rose-600 text-white flex items-center justify-center text-xs font-bold shadow-xs">
                     {listing.landlordName.charAt(0)}
                   </div>
                   <div>
-                    <p className="font-semibold text-xs text-slate-900">{listing.landlordName}</p>
+                    <p className="font-bold text-xs text-slate-900">{listing.landlordName}</p>
                     <p className="text-[10px] text-slate-500">Verified Accommodation Host</p>
                   </div>
                 </div>
@@ -206,17 +221,29 @@ export const ListingDetailModal: React.FC<ListingDetailModalProps> = ({ listing,
               {/* Action Buttons */}
               <div className="space-y-2 pt-2">
                 {!isSuspended && (
-                  <button
-                    id="modal-message-landlord-btn"
-                    onClick={() => {
-                      startOrOpenConversation(listing.id, listing.landlordId, listing.landlordName, listing.title);
-                      onClose();
-                    }}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs py-2.5 px-4 rounded-lg transition flex items-center justify-center gap-2 shadow-xs"
-                  >
-                    <MessageSquare className="w-4 h-4" />
-                    <span>In-Platform Message (Safe)</span>
-                  </button>
+                  <>
+                    <button
+                      id="modal-message-landlord-btn"
+                      onClick={() => {
+                        startOrOpenConversation(listing.id, listing.landlordId, listing.landlordName, listing.title);
+                        onClose();
+                      }}
+                      className="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow-md shadow-rose-600/20"
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                      <span>Chat with Host (Protected)</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setIsSupportModalOpen(true);
+                        onClose();
+                      }}
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow-xs"
+                    >
+                      <span>💬 Free WhatsApp Booking Help</span>
+                    </button>
+                  </>
                 )}
 
                 <button
@@ -225,10 +252,10 @@ export const ListingDetailModal: React.FC<ListingDetailModalProps> = ({ listing,
                     setReportTargetListing(listing);
                     setIsReportModalOpen(true);
                   }}
-                  className="w-full bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold text-xs py-2 px-4 rounded-lg border border-rose-200 transition flex items-center justify-center gap-2"
+                  className="w-full bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold text-xs py-2 px-4 rounded-xl border border-rose-200 transition flex items-center justify-center gap-2"
                 >
                   <ShieldAlert className="w-4 h-4 text-rose-600" />
-                  <span>Report Red Flag / Scam (FR-16)</span>
+                  <span>Report Red Flag / Suspicious Info (FR-16)</span>
                 </button>
               </div>
             </div>

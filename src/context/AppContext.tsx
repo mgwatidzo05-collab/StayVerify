@@ -112,6 +112,20 @@ interface AppContextType {
   // Export Case Dossier
   exportCaseDossier: (reportId: string) => void;
   resetToDefaultData: () => void;
+
+  // Additional UI States
+  savedListingIds: string[];
+  toggleSaveListing: (listingId: string) => void;
+  isListingSaved: (listingId: string) => boolean;
+  selectedCurrency: 'USD' | 'GBP' | 'EUR' | 'ZWL';
+  setSelectedCurrency: (curr: 'USD' | 'GBP' | 'EUR' | 'ZWL') => void;
+  formatPrice: (priceUsd: number) => string;
+  isShortlistOpen: boolean;
+  setIsShortlistOpen: (open: boolean) => void;
+  isSupportModalOpen: boolean;
+  setIsSupportModalOpen: (open: boolean) => void;
+  viewMode: 'grid' | 'map' | 'split';
+  setViewMode: (mode: 'grid' | 'map' | 'split') => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -154,6 +168,41 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isSrsModalOpen, setIsSrsModalOpen] = useState<boolean>(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'register_student' | 'register_landlord' | 'reset_password'>('login');
+
+  // Interactive UI state
+  const [savedListingIds, setSavedListingIds] = useState<string[]>(() => loadFromStorage('saved_listings', ['lst-001', 'lst-003']));
+  const [selectedCurrency, setSelectedCurrency] = useState<'USD' | 'GBP' | 'EUR' | 'ZWL'>('USD');
+  const [isShortlistOpen, setIsShortlistOpen] = useState<boolean>(false);
+  const [isSupportModalOpen, setIsSupportModalOpen] = useState<boolean>(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'map' | 'split'>('grid');
+
+  const toggleSaveListing = (listingId: string) => {
+    setSavedListingIds(prev => {
+      const next = prev.includes(listingId)
+        ? prev.filter(id => id !== listingId)
+        : [...prev, listingId];
+      localStorage.setItem(STORAGE_KEY_PREFIX + 'saved_listings', JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const isListingSaved = (listingId: string) => {
+    return savedListingIds.includes(listingId);
+  };
+
+  const formatPrice = (priceUsd: number) => {
+    switch (selectedCurrency) {
+      case 'GBP':
+        return `£${Math.round(priceUsd * 0.79)}`;
+      case 'EUR':
+        return `€${Math.round(priceUsd * 0.92)}`;
+      case 'ZWL':
+        return `ZiG ${Math.round(priceUsd * 26.5).toLocaleString()}`;
+      case 'USD':
+      default:
+        return `$${priceUsd}`;
+    }
+  };
 
   // Sync to localStorage
   useEffect(() => {
@@ -697,7 +746,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         authModalMode,
         setAuthModalMode,
         exportCaseDossier,
-        resetToDefaultData
+        resetToDefaultData,
+        savedListingIds,
+        toggleSaveListing,
+        isListingSaved,
+        selectedCurrency,
+        setSelectedCurrency,
+        formatPrice,
+        isShortlistOpen,
+        setIsShortlistOpen,
+        isSupportModalOpen,
+        setIsSupportModalOpen,
+        viewMode,
+        setViewMode
       }}
     >
       {children}
