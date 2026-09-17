@@ -16,7 +16,8 @@ import {
   X,
   Layers,
   ZoomIn,
-  ZoomOut
+  ZoomOut,
+  MessageCircle
 } from 'lucide-react';
 
 interface MapViewProps {
@@ -28,6 +29,15 @@ export const MapView: React.FC<MapViewProps> = ({ listings, onOpenDetails }) => 
   const { formatPrice, toggleSaveListing, isListingSaved } = useApp();
   const [selectedMapListing, setSelectedMapListing] = useState<Listing | null>(listings[0] || null);
   const [zoomLevel, setZoomLevel] = useState(1);
+
+  const landlordPhone = selectedMapListing?.landlordPhone || '+263 77 123 4567';
+  const cleanPhone = landlordPhone.replace(/[^0-9]/g, '');
+  const whatsappMessage = selectedMapListing
+    ? encodeURIComponent(
+        `Hello ${selectedMapListing.landlordName}, I saw your accommodation "${selectedMapListing.title}" in ${selectedMapListing.suburb} on StayVerify. I am a student interested in viewing the room. Is it still available?`
+      )
+    : '';
+  const whatsappUrl = `https://wa.me/${cleanPhone}?text=${whatsappMessage}`;
   const [filterRadius, setFilterRadius] = useState<number>(5);
 
   // Approximate relative coordinate positions on our Bulawayo NUST map canvas
@@ -172,7 +182,6 @@ export const MapView: React.FC<MapViewProps> = ({ listings, onOpenDetails }) => 
           {listings.map((listing) => {
             const coords = getCoordinatesForListing(listing);
             const isSelected = selectedMapListing?.id === listing.id;
-            const isPhysicallyVerified = listing.verificationBadge === 'physically_verified';
 
             return (
               <div
@@ -185,14 +194,11 @@ export const MapView: React.FC<MapViewProps> = ({ listings, onOpenDetails }) => 
                   className={`group px-2 py-1 rounded-full font-bold text-xs flex items-center gap-1 shadow-lg transition-transform ${
                     isSelected
                       ? 'bg-rose-600 text-white ring-4 ring-rose-500/40 scale-110 z-40'
-                      : isPhysicallyVerified
-                      ? 'bg-emerald-600 hover:bg-emerald-500 text-white hover:scale-105'
                       : 'bg-slate-900/90 hover:bg-slate-800 text-white border border-slate-700 hover:scale-105'
                   }`}
                 >
                   <MapPin className="w-3 h-3" />
                   <span>{formatPrice(listing.pricePerMonthUsd)}</span>
-                  {isPhysicallyVerified && <span className="text-[10px]">🛡️</span>}
                 </div>
               </div>
             );
@@ -238,7 +244,7 @@ export const MapView: React.FC<MapViewProps> = ({ listings, onOpenDetails }) => 
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between mt-1">
+                <div className="flex items-center justify-between mt-1 gap-2">
                   <div>
                     <span className="text-sm font-black text-rose-600">
                       {formatPrice(selectedMapListing.pricePerMonthUsd)}
@@ -246,13 +252,37 @@ export const MapView: React.FC<MapViewProps> = ({ listings, onOpenDetails }) => 
                     <span className="text-[10px] text-slate-500"> /mo</span>
                   </div>
 
-                  <button
-                    onClick={() => onOpenDetails(selectedMapListing)}
-                    className="bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-bold px-3 py-1 rounded-lg transition flex items-center gap-1"
-                  >
-                    <span>View Details</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </button>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <a
+                      href={selectedMapListing.googleMapUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedMapListing.address + ', ' + selectedMapListing.suburb + ', Bulawayo')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-rose-50 hover:bg-rose-100 text-rose-700 text-[11px] font-bold px-2 py-1 rounded-lg border border-rose-200 transition flex items-center gap-1"
+                      title="Open in Google Maps"
+                    >
+                      <MapPin className="w-3 h-3 text-rose-600" />
+                      <span>Maps</span>
+                    </a>
+
+                    <a
+                      href={whatsappUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold px-2 py-1 rounded-lg transition flex items-center gap-1"
+                      title={`WhatsApp Landlord (${landlordPhone})`}
+                    >
+                      <MessageCircle className="w-3 h-3 fill-white" />
+                      <span>WhatsApp</span>
+                    </a>
+
+                    <button
+                      onClick={() => onOpenDetails(selectedMapListing)}
+                      className="bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-bold px-2.5 py-1 rounded-lg transition flex items-center gap-1"
+                    >
+                      <span>View</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

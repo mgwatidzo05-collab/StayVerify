@@ -18,6 +18,8 @@ export interface User {
   institution?: string; // e.g. National University of Science and Technology
   isStudentVerified?: boolean;
   landlordVerificationTier?: VerificationTier;
+  accessKey?: string; // Access key provided by admin to access landlord portal
+  password?: string; // Optional password
   createdAt: string;
 }
 
@@ -77,11 +79,13 @@ export interface Listing {
   landlordId: string;
   landlordName: string;
   landlordEmail: string;
+  landlordPhone?: string; // Direct WhatsApp contact number for student-landlord communication
   landlordTier: VerificationTier;
   title: string;
   description: string;
   address: string;
   suburb: string; // e.g. Riverside, Selborne Park, Matsheumhlope, Woodlands, Bulawayo CBD
+  googleMapUrl?: string; // Google Maps location URL, pin link, or coordinates entered by landlord
   distanceToCampusKm: number; // e.g. 1.2 km to NUST main gate
   walkingMinutes: number;
   pricePerMonthUsd: number;
@@ -197,8 +201,15 @@ export interface AuditLog {
   actionType:
     | 'landlord_verified'
     | 'landlord_rejected'
+    | 'landlord_added_by_admin'
+    | 'landlord_removed_by_admin'
+    | 'student_registered'
+    | 'student_added_by_admin'
+    | 'student_removed_by_admin'
     | 'physical_visit_logged'
     | 'listing_created'
+    | 'listing_updated'
+    | 'listing_deleted'
     | 'listing_auto_suspended'
     | 'listing_manually_banned'
     | 'listing_restored'

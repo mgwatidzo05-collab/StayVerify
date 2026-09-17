@@ -20,7 +20,11 @@ import {
   AlertTriangle,
   Calendar,
   Building,
-  DollarSign
+  DollarSign,
+  Phone,
+  MessageCircle,
+  ExternalLink,
+  Navigation
 } from 'lucide-react';
 
 interface ListingDetailModalProps {
@@ -30,6 +34,7 @@ interface ListingDetailModalProps {
 
 export const ListingDetailModal: React.FC<ListingDetailModalProps> = ({ listing, onClose }) => {
   const {
+    allUsers,
     reviews,
     physicalVisits,
     startOrOpenConversation,
@@ -48,6 +53,14 @@ export const ListingDetailModal: React.FC<ListingDetailModalProps> = ({ listing,
   const [newRating, setNewRating] = useState(5);
   const [newComment, setNewComment] = useState('');
   const [tenancyPeriod, setTenancyPeriod] = useState('2025/2026 Academic Year');
+
+  const landlordHost = allUsers.find(u => u.id === listing.landlordId);
+  const landlordPhone = listing.landlordPhone || landlordHost?.phone || '+263 77 123 4567';
+  const cleanPhone = landlordPhone.replace(/[^0-9]/g, '');
+  const whatsappMessage = encodeURIComponent(
+    `Hello ${listing.landlordName}, I saw your accommodation listing "${listing.title}" in ${listing.suburb} on StayVerify. I am a student interested in viewing the room. Is it still available?`
+  );
+  const whatsappUrl = `https://wa.me/${cleanPhone}?text=${whatsappMessage}`;
 
   const listingReviews = reviews.filter(r => r.listingId === listing.id);
   const physicalVisit = physicalVisits.find(pv => pv.listingId === listing.id);
@@ -161,6 +174,16 @@ export const ListingDetailModal: React.FC<ListingDetailModalProps> = ({ listing,
                   <MapPin className="w-4 h-4 text-blue-600" />
                   <span>{listing.address}, {listing.suburb}</span>
                 </div>
+                <a
+                  href={listing.googleMapUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(listing.address + ', ' + listing.suburb + ', Bulawayo')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-2.5 py-1 rounded-full transition"
+                >
+                  <MapPin className="w-3 h-3 text-rose-600" />
+                  <span>Open Google Maps</span>
+                  <ExternalLink className="w-3 h-3 ml-0.5" />
+                </a>
                 <div className="flex items-center gap-1 bg-blue-50 text-blue-800 px-2.5 py-1 rounded-full font-semibold">
                   <Clock className="w-3.5 h-3.5" />
                   <span>{listing.distanceToCampusKm} km to NUST Gate ({listing.walkingMinutes} min walk)</span>
@@ -205,7 +228,7 @@ export const ListingDetailModal: React.FC<ListingDetailModalProps> = ({ listing,
               </div>
 
               {/* Landlord Identity Overview */}
-              <div className="pt-2 border-t border-slate-200 space-y-2">
+              <div className="pt-2 border-t border-slate-200 space-y-2.5">
                 <div className="flex items-center gap-2.5">
                   <div className="w-9 h-9 rounded-xl bg-rose-600 text-white flex items-center justify-center text-xs font-bold shadow-xs">
                     {listing.landlordName.charAt(0)}
@@ -215,6 +238,18 @@ export const ListingDetailModal: React.FC<ListingDetailModalProps> = ({ listing,
                     <p className="text-[10px] text-slate-500">Verified Accommodation Host</p>
                   </div>
                 </div>
+
+                {/* Landlord Phone Info */}
+                <div className="flex items-center gap-2 p-2 bg-emerald-50/70 border border-emerald-200/80 rounded-xl text-xs">
+                  <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                    <Phone className="w-3.5 h-3.5" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-slate-500 font-semibold">Landlord WhatsApp Contact</p>
+                    <p className="font-mono font-bold text-xs text-slate-900">{landlordPhone}</p>
+                  </div>
+                </div>
+
                 <VerificationBadge tier={listing.landlordTier} size="sm" showDetails />
               </div>
 
@@ -222,26 +257,27 @@ export const ListingDetailModal: React.FC<ListingDetailModalProps> = ({ listing,
               <div className="space-y-2 pt-2">
                 {!isSuspended && (
                   <>
+                    <a
+                      id="modal-whatsapp-landlord-btn"
+                      href={whatsappUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow-sm"
+                    >
+                      <MessageCircle className="w-4 h-4 fill-white" />
+                      <span>Connect with Landlord on WhatsApp</span>
+                    </a>
+
                     <button
                       id="modal-message-landlord-btn"
                       onClick={() => {
                         startOrOpenConversation(listing.id, listing.landlordId, listing.landlordName, listing.title);
                         onClose();
                       }}
-                      className="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow-md shadow-rose-600/20"
+                      className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-2"
                     >
-                      <MessageSquare className="w-4 h-4" />
-                      <span>Chat with Host (Protected)</span>
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        setIsSupportModalOpen(true);
-                        onClose();
-                      }}
-                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow-xs"
-                    >
-                      <span>💬 Free WhatsApp Booking Help</span>
+                      <MessageSquare className="w-4 h-4 text-slate-600" />
+                      <span>Send In-App Message</span>
                     </button>
                   </>
                 )}
@@ -261,39 +297,55 @@ export const ListingDetailModal: React.FC<ListingDetailModalProps> = ({ listing,
             </div>
           </div>
 
-          {/* Physical Verification Report (FR-06) */}
-          {physicalVisit && (
-            <div className="bg-emerald-50/70 border border-emerald-200 rounded-xl p-4 space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-emerald-900 font-bold text-sm">
-                  <ShieldCheck className="w-5 h-5 text-emerald-600" />
-                  <span>Campus Housing Officer Physical Inspection Passed</span>
+          {/* Google Map Location & Directions */}
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+                  <MapPin className="w-5 h-5" />
                 </div>
-                <span className="text-[11px] font-mono text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">
-                  Visit Date: {physicalVisit.visitDate}
-                </span>
+                <div>
+                  <h3 className="font-bold text-sm text-slate-900">Accommodation Google Map Location</h3>
+                  <p className="text-xs text-slate-500">{listing.address}, {listing.suburb}, Bulawayo</p>
+                </div>
               </div>
-              <p className="text-xs text-emerald-800 leading-relaxed">{physicalVisit.findings}</p>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 text-[11px] font-medium text-emerald-900">
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Security wall/fence verified</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Solar backup operational</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Borehole water test passed</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Inspector ID: {physicalVisit.inspectorId}</span>
-                </div>
+
+              <div className="flex items-center gap-2 flex-wrap">
+                <a
+                  href={listing.googleMapUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(listing.address + ', ' + listing.suburb + ', Bulawayo')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition shadow-xs"
+                >
+                  <MapPin className="w-3.5 h-3.5" />
+                  <span>View on Google Maps</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+
+                <a
+                  href={`https://www.google.com/maps/dir/?api=1&origin=National+University+of+Science+and+Technology+Bulawayo&destination=${encodeURIComponent(listing.googleMapUrl || (listing.address + ', ' + listing.suburb + ', Bulawayo'))}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs px-3.5 py-2 rounded-xl transition"
+                >
+                  <Navigation className="w-3.5 h-3.5 text-slate-700" />
+                  <span>Directions from NUST</span>
+                </a>
               </div>
             </div>
-          )}
+
+            {/* Embedded interactive Google Map preview */}
+            <div className="w-full h-52 sm:h-64 rounded-xl overflow-hidden border border-slate-200 bg-slate-100 relative">
+              <iframe
+                title="Google Map Location Preview"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                loading="lazy"
+                src={`https://maps.google.com/maps?q=${encodeURIComponent(listing.googleMapUrl || (listing.address + ', ' + listing.suburb + ', Bulawayo'))}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+              />
+            </div>
+          </div>
 
           {/* Amenities & Utilities */}
           <div className="space-y-3 pt-2 border-t border-slate-100">

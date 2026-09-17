@@ -38,9 +38,33 @@ interface AppContextType {
   switchUserById: (userId: string) => void;
   switchRole: (role: UserRole) => void;
 
+  // Student Access & Auth
+  studentUser: User | null;
+  loginStudent: (identifier: string, password?: string) => { success: boolean; error?: string; user?: User };
+  logoutStudent: () => void;
+  registerStudent: (data: { name: string; studentNumber: string; email: string; phone?: string; password?: string }) => { success: boolean; error?: string; user?: User };
+
+  // Landlord Access Key Auth
+  landlordUser: User | null;
+  loginLandlordWithKey: (accessKey: string) => { success: boolean; landlord?: User; error?: string };
+  logoutLandlord: () => void;
+
+  // Admin Master Password Auth
+  isAdminAuthenticated: boolean;
+  loginAdmin: (password: string) => boolean;
+  logoutAdmin: () => void;
+
+  // Admin Stakeholder Management
+  addLandlord: (data: { name: string; email: string; phone: string; suburb?: string; accessKey?: string }) => User;
+  removeLandlord: (landlordId: string) => void;
+  addStudent: (data: { name: string; studentNumber: string; email: string; phone?: string; password?: string }) => User;
+  removeStudent: (studentId: string) => void;
+  deleteListing: (listingId: string) => void;
+
   // Listings
   listings: Listing[];
   addListing: (listingData: Omit<Listing, 'id' | 'createdAt' | 'updatedAt' | 'reportCount' | 'viewsCount' | 'ratingAverage' | 'ratingCount'>) => { success: boolean; listing?: Listing; error?: string };
+  updateListing: (listingId: string, updatedData: Partial<Listing>) => { success: boolean; listing?: Listing; error?: string };
   updateListingStatus: (listingId: string, status: Listing['status'], adminNotes?: string) => void;
   incrementListingViews: (listingId: string) => void;
   checkDuplicateOrFlaggedListing: (title: string, address: string) => { isFlagged: boolean; reason?: string };
@@ -149,6 +173,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return saved || INITIAL_USERS[0]; // Student Tendai by default
   });
 
+  // Dedicated Stakeholder Auth States
+  const [studentUser, setStudentUser] = useState<User | null>(() => loadFromStorage<User | null>('student_user', null));
+  const [landlordUser, setLandlordUser] = useState<User | null>(() => loadFromStorage<User | null>('landlord_user', null));
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(() => loadFromStorage<boolean>('is_admin_auth', false));
+
   const [listings, setListings] = useState<Listing[]>(() => loadFromStorage('listings', INITIAL_LISTINGS));
   const [documents, setDocuments] = useState<VerificationDocument[]>(() => loadFromStorage('documents', INITIAL_VERIFICATION_DOCUMENTS));
   const [physicalVisits, setPhysicalVisits] = useState<PhysicalVerificationVisit[]>(() => loadFromStorage('physical_visits', INITIAL_PHYSICAL_VISITS));
@@ -208,6 +237,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY_PREFIX + 'users', JSON.stringify(allUsers));
     localStorage.setItem(STORAGE_KEY_PREFIX + 'current_user', JSON.stringify(currentUser));
+    localStorage.setItem(STORAGE_KEY_PREFIX + 'student_user', JSON.stringify(studentUser));
+    localStorage.setItem(STORAGE_KEY_PREFIX + 'landlord_user', JSON.stringify(landlordUser));
+    localStorage.setItem(STORAGE_KEY_PREFIX + 'is_admin_auth', JSON.stringify(isAdminAuthenticated));
     localStorage.setItem(STORAGE_KEY_PREFIX + 'listings', JSON.stringify(listings));
     localStorage.setItem(STORAGE_KEY_PREFIX + 'documents', JSON.stringify(documents));
     localStorage.setItem(STORAGE_KEY_PREFIX + 'physical_visits', JSON.stringify(physicalVisits));
@@ -218,7 +250,176 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem(STORAGE_KEY_PREFIX + 'roommates', JSON.stringify(roommates));
     localStorage.setItem(STORAGE_KEY_PREFIX + 'audit_logs', JSON.stringify(auditLogs));
     localStorage.setItem(STORAGE_KEY_PREFIX + 'student_prefs', JSON.stringify(studentPreferences));
-  }, [allUsers, currentUser, listings, documents, physicalVisits, reports, conversations, messages, reviews, roommates, auditLogs, studentPreferences]);
+  }, [allUsers, currentUser, studentUser, landlordUser, isAdminAuthenticated, listings, documents, physicalVisits, reports, conversations, messages, reviews, roommates, auditLogs, studentPreferences]);
+
+  // 1. Student Authentication & Registration
+  const loginStudent = (identifier: string, password?: string) => {
+    const clean = identifier.trim().toLowerCase();
+    if (clean === 'demo') {
+      const demoStudent = allUsers.find(u => u.role === 'student') || INITIAL_USERS[0];
+      setStudentUser(demoStudent);
+      setCurrentUser(demoStudent);
+      return { success: true, user: demoStudent };
+    }
+
+    const student = allUsers.find(u =>
+      u.role === 'student' &&
+      (u.email.toLowerCase() === clean ||
+       (u.studentNumber && u.studentNumber.toLowerCase() === clean) ||
+       u.name.toLowerCase() === clean)
+    );
+
+    if (!student) {
+      return { success: false, error: 'Student account not found. Please check your personal email or Student ID, or register below.' };
+    }
+
+    if (password && student.password && student.password !== password) {
+      return { success: false, error: 'Incorrect password for student account.' };
+    }
+
+    setStudentUser(student);
+    setCurrentUser(student);
+    return { success: true, user: student };
+  };
+
+  const logoutStudent = () => {
+    setStudentUser(null);
+  };
+
+  const registerStudent = (data: { name: string; studentNumber: string; email: string; phone?: string; password?: string }) => {
+    const cleanEmail = data.email.trim().toLowerCase();
+    const cleanReg = data.studentNumber.trim().toUpperCase();
+
+    const existing = allUsers.find(u =>
+      u.email.toLowerCase() === cleanEmail ||
+      (u.studentNumber && u.studentNumber.toUpperCase() === cleanReg)
+    );
+
+    if (existing) {
+      return { success: false, error: 'A student with this Student ID or Email already exists. Please log in.' };
+    }
+
+    const newStudent: User = {
+      id: `usr-student-${Date.now()}`,
+      name: data.name.trim(),
+      email: data.email.trim(),
+      studentNumber: cleanReg,
+      role: 'student',
+      phone: data.phone?.trim() || '+263 77 000 0000',
+      isStudentVerified: true,
+      password: data.password || 'student123',
+      createdAt: new Date().toISOString()
+    };
+
+    setAllUsers(prev => [newStudent, ...prev]);
+    setStudentUser(newStudent);
+    setCurrentUser(newStudent);
+    logAuditAction('student_registered', newStudent.id, 'user', `Student registered: ${newStudent.name} (${newStudent.studentNumber})`);
+    return { success: true, user: newStudent };
+  };
+
+  // 2. Landlord Access Key Authentication
+  const loginLandlordWithKey = (accessKey: string) => {
+    const cleanKey = accessKey.trim().toUpperCase();
+    const landlord = allUsers.find(u =>
+      u.role === 'landlord' &&
+      u.accessKey &&
+      u.accessKey.trim().toUpperCase() === cleanKey
+    );
+
+    if (!landlord) {
+      return {
+        success: false,
+        error: 'Invalid Landlord Access Key. Please enter a valid key provided by the NUST Housing Admin.'
+      };
+    }
+
+    setLandlordUser(landlord);
+    setCurrentUser(landlord);
+    return { success: true, landlord };
+  };
+
+  const logoutLandlord = () => {
+    setLandlordUser(null);
+  };
+
+  // 3. Admin Master Password Authentication
+  const loginAdmin = (password: string) => {
+    if (password.trim() === 'admin123') {
+      setIsAdminAuthenticated(true);
+      const adminUser = allUsers.find(u => u.role === 'admin') || INITIAL_USERS.find(u => u.role === 'admin')!;
+      setCurrentUser(adminUser);
+      return true;
+    }
+    return false;
+  };
+
+  const logoutAdmin = () => {
+    setIsAdminAuthenticated(false);
+  };
+
+  // 4. Admin Stakeholder Management
+  const addLandlord = (data: { name: string; email: string; phone: string; suburb?: string; accessKey?: string }) => {
+    const key = data.accessKey?.trim().toUpperCase() ||
+      `HOST-${data.name.split(' ')[0].replace(/[^A-Za-z]/g, '').toUpperCase()}-${Math.floor(10 + Math.random() * 90)}`;
+
+    const newLandlord: User = {
+      id: `usr-landlord-${Date.now()}`,
+      name: data.name.trim(),
+      email: data.email.trim(),
+      phone: data.phone.trim(),
+      role: 'landlord',
+      accessKey: key,
+      landlordVerificationTier: 'physically_verified',
+      createdAt: new Date().toISOString()
+    };
+
+    setAllUsers(prev => [newLandlord, ...prev]);
+    logAuditAction('landlord_added_by_admin', newLandlord.id, 'user', `Admin added landlord ${newLandlord.name} with Access Key: ${key}`);
+    return newLandlord;
+  };
+
+  const removeLandlord = (landlordId: string) => {
+    const target = allUsers.find(u => u.id === landlordId);
+    setAllUsers(prev => prev.filter(u => u.id !== landlordId));
+    if (landlordUser?.id === landlordId) {
+      setLandlordUser(null);
+    }
+    logAuditAction('landlord_removed_by_admin', landlordId, 'user', `Admin removed landlord ${target?.name || landlordId}`);
+  };
+
+  const addStudent = (data: { name: string; studentNumber: string; email: string; phone?: string; password?: string }) => {
+    const newStudent: User = {
+      id: `usr-student-${Date.now()}`,
+      name: data.name.trim(),
+      studentNumber: data.studentNumber.trim().toUpperCase(),
+      email: data.email.trim(),
+      phone: data.phone?.trim() || '+263 77 000 0000',
+      role: 'student',
+      isStudentVerified: true,
+      password: data.password || 'student123',
+      createdAt: new Date().toISOString()
+    };
+
+    setAllUsers(prev => [newStudent, ...prev]);
+    logAuditAction('student_added_by_admin', newStudent.id, 'user', `Admin added student: ${newStudent.name} (${newStudent.studentNumber})`);
+    return newStudent;
+  };
+
+  const removeStudent = (studentId: string) => {
+    const target = allUsers.find(u => u.id === studentId);
+    setAllUsers(prev => prev.filter(u => u.id !== studentId));
+    if (studentUser?.id === studentId) {
+      setStudentUser(null);
+    }
+    logAuditAction('student_removed_by_admin', studentId, 'user', `Admin removed student ${target?.name || studentId}`);
+  };
+
+  const deleteListing = (listingId: string) => {
+    const target = listings.find(l => l.id === listingId);
+    setListings(prev => prev.filter(l => l.id !== listingId));
+    logAuditAction('listing_deleted', listingId, 'listing', `Deleted listing: "${target?.title || listingId}"`);
+  };
 
   const logAuditAction = (actionType: AuditLog['actionType'], targetId: string, targetType: AuditLog['targetEntityType'], details: string) => {
     const newLog: AuditLog = {
@@ -302,6 +503,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setListings(prev => [newListing, ...prev]);
     logAuditAction('listing_created', newListing.id, 'listing', `Created listing: "${newListing.title}" with verification badge: ${newListing.verificationBadge}`);
     return { success: true, listing: newListing };
+  };
+
+  const updateListing = (listingId: string, updatedData: Partial<Listing>) => {
+    const existing = listings.find(l => l.id === listingId);
+    if (!existing) {
+      return { success: false, error: 'Accommodation listing not found.' };
+    }
+
+    const updatedListing: Listing = {
+      ...existing,
+      ...updatedData,
+      updatedAt: new Date().toISOString()
+    };
+
+    setListings(prev => prev.map(l => l.id === listingId ? updatedListing : l));
+    logAuditAction('listing_updated', listingId, 'listing', `Updated accommodation details for "${updatedListing.title}"`);
+    return { success: true, listing: updatedListing };
   };
 
   const updateListingStatus = (listingId: string, status: Listing['status'], adminNotes?: string) => {
@@ -704,8 +922,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setCurrentUser,
         switchUserById,
         switchRole,
+        studentUser,
+        loginStudent,
+        logoutStudent,
+        registerStudent,
+        landlordUser,
+        loginLandlordWithKey,
+        logoutLandlord,
+        isAdminAuthenticated,
+        loginAdmin,
+        logoutAdmin,
+        addLandlord,
+        removeLandlord,
+        addStudent,
+        removeStudent,
+        deleteListing,
         listings,
         addListing,
+        updateListing,
         updateListingStatus,
         incrementListingViews,
         checkDuplicateOrFlaggedListing,

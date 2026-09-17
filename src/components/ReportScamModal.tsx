@@ -153,7 +153,7 @@ export const ReportScamModal: React.FC = () => {
               </div>
               <div>
                 <h3 className="font-bold text-base text-slate-900">Report Scam or Suspicious Listing (FR-16)</h3>
-                <p className="text-xs text-slate-500">All submissions are reviewed by Platform Admin & NUST Campus Housing Office.</p>
+                <p className="text-xs text-slate-500">All submissions are reviewed promptly by the Platform Admin.</p>
               </div>
             </div>
 

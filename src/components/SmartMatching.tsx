@@ -81,8 +81,8 @@ export const SmartMatching: React.FC<{ onOpenListing: (listing: Listing) => void
       : 1;
     score += amenityRatio * 25;
 
-    // Bonus for Physically Verified (5 pts)
-    if (listing.verificationBadge === 'physically_verified') score += 5;
+    // Bonus for Verified Landlord (5 pts)
+    if (listing.verificationBadge === 'document_verified' || listing.verificationBadge === 'physically_verified') score += 5;
 
     return Math.min(100, Math.round(score));
   };
