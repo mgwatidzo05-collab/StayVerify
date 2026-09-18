@@ -132,7 +132,7 @@ export const ListingDetailModal: React.FC<ListingDetailModalProps> = ({ listing,
                 <div className="w-full h-full flex items-center justify-center text-slate-400">No Image</div>
               )}
 
-              {/* Timestamp Verification Badge (FR-08) */}
+              {/* Timestamp Verification Badge */}
               {listing.media && listing.media[activeImageIndex]?.cameraMetadataVerified && (
                 <div className="absolute bottom-3 left-3 bg-slate-900/90 backdrop-blur-xs text-white text-xs px-3 py-1.5 rounded-lg border border-emerald-500/40 flex items-center gap-2 shadow-lg">
                   <Camera className="w-4 h-4 text-emerald-400" />
@@ -291,7 +291,7 @@ export const ListingDetailModal: React.FC<ListingDetailModalProps> = ({ listing,
                   className="w-full bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold text-xs py-2 px-4 rounded-xl border border-rose-200 transition flex items-center justify-center gap-2"
                 >
                   <ShieldAlert className="w-4 h-4 text-rose-600" />
-                  <span>Report Red Flag / Suspicious Info (FR-16)</span>
+                  <span>Report Red Flag / Suspicious Listing</span>
                 </button>
               </div>
             </div>
@@ -360,7 +360,7 @@ export const ListingDetailModal: React.FC<ListingDetailModalProps> = ({ listing,
             </div>
           </div>
 
-          {/* Verified Past Tenant Reviews (FR-19) */}
+          {/* Verified Past Tenant Reviews */}
           <div className="space-y-4 pt-2 border-t border-slate-100">
             <div className="flex items-center justify-between">
               <div>
@@ -370,7 +370,7 @@ export const ListingDetailModal: React.FC<ListingDetailModalProps> = ({ listing,
                     {listingReviews.length} Tenancies
                   </span>
                 </h3>
-                <p className="text-xs text-slate-500">Only reviews tied to confirmed student tenancies are published (FR-19).</p>
+                <p className="text-xs text-slate-500">Only reviews tied to confirmed student tenancies are published.</p>
               </div>
 
               <button
@@ -460,7 +460,7 @@ export const ListingDetailModal: React.FC<ListingDetailModalProps> = ({ listing,
                     <p className="text-xs text-slate-700 leading-relaxed italic">"{review.comment}"</p>
                     <div className="flex items-center gap-1 text-[10px] text-emerald-700 font-semibold">
                       <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                      <span>Verified Tenancy Record (FR-19)</span>
+                      <span>Verified Tenancy Record</span>
                     </div>
                   </div>
                 ))

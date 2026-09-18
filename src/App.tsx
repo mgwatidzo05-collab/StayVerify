@@ -10,11 +10,9 @@ import { ListingDetailModal } from './components/ListingDetailModal';
 import { ReportScamModal } from './components/ReportScamModal';
 import { SRSTraceabilityModal } from './components/SRSTraceabilityModal';
 import { AuthModal } from './components/AuthModal';
-import { SmartMatching } from './components/SmartMatching';
 import { MessagingCenter } from './components/MessagingCenter';
 import { LandlordDashboard } from './components/LandlordDashboard';
 import { AdminDashboard } from './components/AdminDashboard';
-import { HousingOfficeAnalytics } from './components/HousingOfficeAnalytics';
 import { StudentLogin } from './components/StudentLogin';
 import { Listing } from './types';
 import {
@@ -25,13 +23,15 @@ import {
   HelpCircle,
   FileText,
   GraduationCap,
-  LogOut
+  LogOut,
+  MessageSquare
 } from 'lucide-react';
 
 const MainContent: React.FC = () => {
   const {
     listings,
     activeTab,
+    setActiveTab,
     selectedListing,
     setSelectedListing,
     setIsSrsModalOpen,
@@ -39,7 +39,8 @@ const MainContent: React.FC = () => {
     setReportTargetListing,
     viewMode,
     studentUser,
-    logoutStudent
+    logoutStudent,
+    conversations
   } = useApp();
 
   const [filters, setFilters] = useState<FilterState>({
@@ -145,13 +146,18 @@ const MainContent: React.FC = () => {
     });
   };
 
+  const totalStudentUnread = conversations.reduce(
+    (acc, c) => acc + (c.unreadCountStudent || 0),
+    0
+  );
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-900">
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-900 pb-16 lg:pb-0">
       <Header />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Tab 1: Find Rooms (Requires Student Login) */}
-        {activeTab === 'browse' && (
+        {/* PORTAL 1: STUDENT PORTAL (Find Rooms, Direct Inquiries & Chat) */}
+        {(activeTab === 'browse' || activeTab === 'student_portal' || activeTab === 'messages') && (
           !studentUser ? (
             <StudentLogin />
           ) : (
@@ -172,7 +178,7 @@ const MainContent: React.FC = () => {
                       </span>
                     </div>
                     <p className="text-xs text-slate-500">
-                      Logged in to NUST Student Room Directory. Direct contact numbers and locations unlocked.
+                      NUST Student Housing Portal. Direct contact numbers and verified addresses unlocked.
                     </p>
                   </div>
                 </div>
@@ -186,59 +192,100 @@ const MainContent: React.FC = () => {
                 </button>
               </div>
 
-              {/* Safety Tip Banner */}
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3.5 flex items-center gap-3 text-xs text-amber-900">
-                <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />
-                <span>
-                  <strong className="font-bold">Student Safety Advice:</strong> Always inspect the room in person before paying deposits. Never send EcoCash reservation fees without viewing.
-                </span>
+              {/* Student Portal Sub-Navigation: Browse vs Chats */}
+              <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
+                <button
+                  id="subtab-browse-rooms"
+                  onClick={() => setActiveTab('browse')}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition ${
+                    activeTab !== 'messages'
+                      ? 'bg-rose-600 text-white shadow-xs'
+                      : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+                  }`}
+                >
+                  <Building className="w-4 h-4" />
+                  <span>Browse Rooms ({filteredListings.length})</span>
+                </button>
+
+                <button
+                  id="subtab-student-messages"
+                  onClick={() => setActiveTab('messages')}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition relative ${
+                    activeTab === 'messages'
+                      ? 'bg-rose-600 text-white shadow-xs'
+                      : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+                  }`}
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  <span>My Inquiries & Chats</span>
+                  {totalStudentUnread > 0 && (
+                    <span className="bg-amber-400 text-slate-900 text-[10px] font-black px-1.5 py-0.2 rounded-full">
+                      {totalStudentUnread}
+                    </span>
+                  )}
+                </button>
               </div>
 
-              {/* Search and Filters */}
-              <SearchAndFilters
-                filters={filters}
-                onFilterChange={setFilters}
-                onReset={handleResetFilters}
-                totalMatches={filteredListings.length}
-              />
-
-              {/* View Mode Rendering: Map vs Grid */}
-              {viewMode === 'map' ? (
-                <div className="bg-white rounded-2xl border border-slate-200 p-3 shadow-xs">
-                  <MapView
-                    listings={filteredListings}
-                    onOpenDetails={(l) => setSelectedListing(l)}
-                  />
-                </div>
+              {/* Sub-view Content: Inquiries/Chat vs Room Directory */}
+              {activeTab === 'messages' ? (
+                <MessagingCenter />
               ) : (
                 <>
-                  {filteredListings.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
-                      {filteredListings.map((listing) => (
-                        <ListingCard
-                          key={listing.id}
-                          listing={listing}
-                          onOpenDetails={(l) => setSelectedListing(l)}
-                        />
-                      ))}
+                  {/* Safety Tip Banner */}
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-3.5 flex items-center gap-3 text-xs text-amber-900">
+                    <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />
+                    <span>
+                      <strong className="font-bold">Student Safety Advice:</strong> Always inspect the room in person before paying deposits. Never send EcoCash reservation fees without viewing.
+                    </span>
+                  </div>
+
+                  {/* Search and Filters */}
+                  <SearchAndFilters
+                    filters={filters}
+                    onFilterChange={setFilters}
+                    onReset={handleResetFilters}
+                    totalMatches={filteredListings.length}
+                  />
+
+                  {/* View Mode Rendering: Map vs Grid */}
+                  {viewMode === 'map' ? (
+                    <div className="bg-white rounded-2xl border border-slate-200 p-3 shadow-xs">
+                      <MapView
+                        listings={filteredListings}
+                        onOpenDetails={(l) => setSelectedListing(l)}
+                      />
                     </div>
                   ) : (
-                    <div className="bg-white rounded-2xl border border-slate-200 p-10 text-center space-y-3 shadow-2xs my-6">
-                      <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center mx-auto">
-                        <Building className="w-6 h-6" />
-                      </div>
-                      <h3 className="text-sm font-bold text-slate-800">No rooms match your filter</h3>
-                      <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                        Try selecting "All Suburbs", clearing your search query, or adjusting your budget limit.
-                      </p>
-                      <button
-                        onClick={handleResetFilters}
-                        className="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2 rounded-xl transition"
-                      >
-                        <RotateCcw className="w-3.5 h-3.5" />
-                        <span>Reset Filters</span>
-                      </button>
-                    </div>
+                    <>
+                      {filteredListings.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
+                          {filteredListings.map((listing) => (
+                            <ListingCard
+                              key={listing.id}
+                              listing={listing}
+                              onOpenDetails={(l) => setSelectedListing(l)}
+                            />
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="bg-white rounded-2xl border border-slate-200 p-10 text-center space-y-3 shadow-2xs my-6">
+                          <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center mx-auto">
+                            <Building className="w-6 h-6" />
+                          </div>
+                          <h3 className="text-sm font-bold text-slate-800">No rooms match your filter</h3>
+                          <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                            Try selecting "All Suburbs", clearing your search query, or adjusting your budget limit.
+                          </p>
+                          <button
+                            onClick={handleResetFilters}
+                            className="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2 rounded-xl transition"
+                          >
+                            <RotateCcw className="w-3.5 h-3.5" />
+                            <span>Reset Filters</span>
+                          </button>
+                        </div>
+                      )}
+                    </>
                   )}
                 </>
               )}
@@ -246,29 +293,14 @@ const MainContent: React.FC = () => {
           )
         )}
 
-        {/* Tab 2: Smart Roommate Matching */}
-        {activeTab === 'smart_match' && (
-          <SmartMatching onOpenListing={(l) => setSelectedListing(l)} />
-        )}
-
-        {/* Tab 3: Messaging */}
-        {activeTab === 'messages' && (
-          <MessagingCenter />
-        )}
-
-        {/* Tab 4: Landlord Hub */}
+        {/* PORTAL 2: LANDLORD PORTAL */}
         {activeTab === 'landlord_portal' && (
           <LandlordDashboard />
         )}
 
-        {/* Tab 5: Admin Operations */}
+        {/* PORTAL 3: ADMIN PORTAL */}
         {activeTab === 'admin_portal' && (
           <AdminDashboard />
-        )}
-
-        {/* Tab 6: Housing Office Analytics */}
-        {activeTab === 'housing_analytics' && (
-          <HousingOfficeAnalytics />
         )}
       </main>
 
@@ -294,7 +326,7 @@ const MainContent: React.FC = () => {
               onClick={() => setIsSrsModalOpen(true)}
               className="text-slate-600 hover:text-slate-900 font-semibold"
             >
-              SRS Requirements
+              Safety & Verification Standards
             </button>
           </div>
         </div>

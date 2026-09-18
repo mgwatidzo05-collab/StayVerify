@@ -290,9 +290,9 @@ export const INITIAL_LISTINGS: Listing[] = [
     reportCount: 3,
     viewsCount: 89,
     scamWarningFlags: [
-      'Advance payment demanded before viewing (Known Scam Pattern FR-20)',
-      'Multiple student fraud reports filed (Auto-Suspended FR-18)',
-      'Stock photos detected with inconsistent metadata (FR-08)'
+      'Advance payment demanded before viewing (Known Scam Pattern)',
+      'Multiple student fraud reports filed (Suspended by Safety System)',
+      'Stock photos detected with inconsistent metadata'
     ],
     createdAt: '2026-08-23T12:00:00Z',
     updatedAt: '2026-08-24T09:40:00Z',
@@ -401,7 +401,7 @@ export const INITIAL_SCAM_REPORTS: ScamReport[] = [
     targetUserId: 'usr-landlord-unverified',
     targetUserName: 'Prince "Realtor" Gumbo',
     reason: 'advance_deposit_before_viewing',
-    reasonLabel: 'Requested deposit / booking fee before physical viewing (FR-20)',
+    reasonLabel: 'Requested deposit / booking fee before physical viewing',
     description: 'The user sent a message saying he is currently in Harare for a funeral and demanded I send $40 via EcoCash to reserve the keys for viewing tomorrow, threatening that 5 other students were on the waitlist.',
     amountDemandedUsd: 40,
     status: 'under_investigation',
@@ -656,7 +656,7 @@ export const INITIAL_AUDIT_LOGS: AuditLog[] = [
     actionType: 'listing_auto_suspended',
     targetEntityId: 'list-104-suspicious',
     targetEntityType: 'listing',
-    details: 'Listing 104 reached report threshold (2 scam reports). Automatic lock initiated pending admin investigation (FR-18).',
+    details: 'Listing 104 reached report threshold (2 scam reports). Automatic lock initiated pending admin investigation.',
     timestamp: '2026-08-24T09:35:00Z'
   }
 ];

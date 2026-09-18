@@ -40,7 +40,7 @@ export const MessagingCenter: React.FC = () => {
   const activeListing = activeConv ? listings.find(l => l.id === activeConv.listingId) : null;
   const convMessages = activeConv ? messages.filter(m => m.conversationId === activeConv.id) : [];
 
-  // Check if landlord has pending or upheld reports (FR-15)
+  // Check if landlord has pending or upheld reports
   const landlordHasReports = activeConv ? reports.some(r => r.targetUserId === activeConv.landlordId) : false;
 
   const handleSend = (e: React.FormEvent) => {
@@ -74,10 +74,10 @@ export const MessagingCenter: React.FC = () => {
             </h2>
             <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
               <Lock className="w-3 h-3 text-emerald-600" />
-              E2E Logged (FR-14)
+              Verified Safe Chat
             </span>
           </div>
-          <p className="text-[11px] text-slate-500 mt-1">Phone numbers kept private for safety (NFR-02)</p>
+          <p className="text-[11px] text-slate-500 mt-1">Phone numbers kept private for student safety</p>
         </div>
 
         {/* Conversation List */}
@@ -151,7 +151,7 @@ export const MessagingCenter: React.FC = () => {
               </div>
             </div>
 
-            {/* Quick Report Button (FR-16) */}
+            {/* Quick Report Button */}
             <button
               onClick={() => {
                 if (activeListing) setReportTargetListing(activeListing);
@@ -160,17 +160,17 @@ export const MessagingCenter: React.FC = () => {
               className="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition"
             >
               <AlertOctagon className="w-3.5 h-3.5 text-rose-600" />
-              <span>Report Landlord / Chat (FR-16)</span>
+              <span>Report Landlord / Conversation</span>
             </button>
           </div>
 
-          {/* Real-time Safety Warning Banners (FR-15 & FR-20) */}
+          {/* Real-time Safety Warning Banners */}
           {landlordHasReports && (
             <div className="bg-red-600 text-white px-4 py-2 text-xs flex items-center justify-between">
               <div className="flex items-center gap-2 font-medium">
                 <AlertTriangle className="w-4 h-4 text-amber-300 shrink-0" />
                 <span>
-                  <strong>Safety Notice (FR-15):</strong> This landlord account currently has active scam reports filed by students. Do NOT send any deposit before physical inspection!
+                  <strong>Safety Notice:</strong> This landlord account currently has active scam reports filed by students. Do NOT send any deposit before physical inspection!
                 </span>
               </div>
             </div>
@@ -184,7 +184,7 @@ export const MessagingCenter: React.FC = () => {
             </span>
           </div>
 
-          {/* Messages Stream (FR-14) */}
+          {/* Messages Stream */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50/50">
             {convMessages.map((msg) => {
               const isMe = msg.senderId === currentUser.id;
@@ -212,7 +212,7 @@ export const MessagingCenter: React.FC = () => {
                   >
                     <p className="leading-relaxed whitespace-pre-wrap">{msg.text}</p>
 
-                    {/* Highlighted Scam Red Flag Warning (FR-20) */}
+                    {/* Highlighted Scam Red Flag Warning */}
                     {msg.flaggedScamPhrases && msg.flaggedScamPhrases.length > 0 && (
                       <div className="mt-2 pt-1.5 border-t border-red-200/60 text-[10px] text-red-700 font-semibold flex items-center gap-1">
                         <AlertTriangle className="w-3 h-3 text-red-600 shrink-0" />

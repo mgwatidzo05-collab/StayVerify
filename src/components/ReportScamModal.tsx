@@ -119,14 +119,14 @@ export const ReportScamModal: React.FC = () => {
 
             <h3 className="text-xl font-bold text-slate-900">Scam Incident Report Logged</h3>
             <p className="text-xs text-slate-600 max-w-md mx-auto">
-              Your report has been assigned Case Reference <span className="font-mono font-bold text-blue-600">{submittedCase.caseNumber}</span> and escalated to the StayVerify Campus Safety Review Queue (FR-17).
+              Your report has been assigned Case Reference <span className="font-mono font-bold text-blue-600">{submittedCase.caseNumber}</span> and escalated to the Campus Safety Review Queue.
             </p>
 
             {submittedCase.autoSuspended ? (
               <div className="bg-red-50 border border-red-200 rounded-xl p-3.5 max-w-md mx-auto text-xs text-red-900 space-y-1">
                 <div className="font-bold flex items-center justify-center gap-1.5">
                   <ShieldAlert className="w-4 h-4 text-red-600" />
-                  <span>Automatic Listing Suspension Activated (FR-18)</span>
+                  <span>Automatic Listing Suspension Activated</span>
                 </div>
                 <p className="text-[11px] text-red-800">
                   Because this property accumulated multiple fraud flags, StayVerify has immediately locked the listing to protect other students pending administrative investigation.
@@ -134,7 +134,7 @@ export const ReportScamModal: React.FC = () => {
               </div>
             ) : (
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 max-w-md mx-auto text-xs text-blue-800">
-                In-platform chat logs and listing snapshots were automatically archived as tamper-evident evidence (FR-14).
+                In-platform chat logs and listing snapshots were automatically archived as evidence for the verification officers.
               </div>
             )}
 
@@ -152,7 +152,7 @@ export const ReportScamModal: React.FC = () => {
                 <AlertOctagon className="w-5 h-5 text-rose-600" />
               </div>
               <div>
-                <h3 className="font-bold text-base text-slate-900">Report Scam or Suspicious Listing (FR-16)</h3>
+                <h3 className="font-bold text-base text-slate-900">Report Scam or Suspicious Listing</h3>
                 <p className="text-xs text-slate-500">All submissions are reviewed promptly by the Platform Admin.</p>
               </div>
             </div>
@@ -220,7 +220,7 @@ export const ReportScamModal: React.FC = () => {
                 <label className="block font-medium text-slate-700 mb-1">Automatic Evidence Capture:</label>
                 <div className="p-2 bg-slate-100 rounded-lg text-[11px] text-slate-600 flex items-center gap-1.5">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span>Chat logs and listing snapshots will be attached automatically (FR-17)</span>
+                  <span>Chat logs and listing snapshots will be attached automatically</span>
                 </div>
               </div>
             </div>

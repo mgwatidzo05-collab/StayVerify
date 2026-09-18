@@ -52,19 +52,19 @@ export const AuthModal: React.FC = () => {
         }, 1200);
       }
     } else if (authModalMode === 'register_student') {
-      setSuccessMessage(`Student account registered for ${name} with NUST ID ${studentNumber} (FR-01)!`);
+      setSuccessMessage(`Student account registered for ${name} with NUST ID ${studentNumber}!`);
       setTimeout(() => {
         setIsAuthModalOpen(false);
         setSuccessMessage(null);
       }, 1500);
     } else if (authModalMode === 'register_landlord') {
-      setSuccessMessage(`Landlord account created for ${name}. Please upload proof of ownership for document verification (FR-02)!`);
+      setSuccessMessage(`Landlord account created for ${name}. Please upload proof of ownership for document verification.`);
       setTimeout(() => {
         setIsAuthModalOpen(false);
         setSuccessMessage(null);
       }, 1500);
     } else if (authModalMode === 'reset_password') {
-      setSuccessMessage(`Password reset link dispatched securely to ${email} (FR-05)!`);
+      setSuccessMessage(`Password reset link dispatched securely to ${email}.`);
       setTimeout(() => {
         setIsAuthModalOpen(false);
         setSuccessMessage(null);
@@ -102,9 +102,9 @@ export const AuthModal: React.FC = () => {
               <div>
                 <h3 className="font-bold text-base">
                   {authModalMode === 'login' && 'Sign In to StayVerify'}
-                  {authModalMode === 'register_student' && 'Register Student Account (FR-01)'}
-                  {authModalMode === 'register_landlord' && 'Register Landlord / Agent (FR-02)'}
-                  {authModalMode === 'reset_password' && 'Reset Password (FR-05)'}
+                  {authModalMode === 'register_student' && 'Register Student Account'}
+                  {authModalMode === 'register_landlord' && 'Register Landlord / Agent'}
+                  {authModalMode === 'reset_password' && 'Reset Password'}
                 </h3>
                 <p className="text-xs text-slate-500">Official Student Accommodation Safety Network</p>
               </div>
@@ -173,7 +173,7 @@ export const AuthModal: React.FC = () => {
               {authModalMode === 'register_student' && (
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block font-bold text-slate-700 mb-1">Student Number (FR-01)</label>
+                    <label className="block font-bold text-slate-700 mb-1">Student Reg Number</label>
                     <input
                       type="text"
                       placeholder="e.g. N0234819P"

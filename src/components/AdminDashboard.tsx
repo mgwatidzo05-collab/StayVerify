@@ -151,9 +151,18 @@ export const AdminDashboard: React.FC = () => {
 
             <form onSubmit={handleAdminLogin} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  Administrator Password
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold text-slate-700">
+                    Administrator Password
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setPasswordInput('admin123')}
+                    className="text-[11px] text-purple-700 font-bold hover:underline bg-purple-50 px-2 py-0.5 rounded"
+                  >
+                    Use Demo: admin123
+                  </button>
+                </div>
                 <input
                   type="password"
                   value={passwordInput}
@@ -375,8 +384,68 @@ export const AdminDashboard: React.FC = () => {
             </div>
           )}
 
-          {/* Landlords Table */}
-          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-2xs">
+          {/* Landlords Mobile Cards (md:hidden) */}
+          <div className="space-y-3 md:hidden">
+            {landlords.map((landlord) => {
+              const landlordListings = listings.filter(l => l.landlordId === landlord.id);
+              return (
+                <div key={landlord.id} className="bg-white rounded-xl border border-slate-200 p-4 shadow-2xs space-y-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 font-bold text-xs flex items-center justify-center shrink-0">
+                        {landlord.name.charAt(0)}
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-slate-900 text-xs">{landlord.name}</h4>
+                        <p className="text-[11px] text-slate-500">{landlord.email}</p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full shrink-0">
+                      {landlordListings.length} rooms
+                    </span>
+                  </div>
+
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[11px] text-slate-400">Key:</span>
+                      {landlord.accessKey ? (
+                        <div className="inline-flex items-center gap-1 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded text-[11px] font-mono font-bold text-purple-800">
+                          <span>{landlord.accessKey}</span>
+                          <button
+                            onClick={() => handleCopyKey(landlord.accessKey!)}
+                            className="text-purple-600 hover:text-purple-800 p-0.5"
+                          >
+                            {copiedKey === landlord.accessKey ? (
+                              <Check className="w-3 h-3 text-emerald-600" />
+                            ) : (
+                              <Copy className="w-3 h-3" />
+                            )}
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-slate-400 italic text-[11px]">None</span>
+                      )}
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        if (window.confirm(`Are you sure you want to remove landlord "${landlord.name}"?`)) {
+                          removeLandlord(landlord.id);
+                        }
+                      }}
+                      className="text-red-600 hover:text-red-800 font-bold text-xs flex items-center gap-1 px-2 py-1 rounded hover:bg-red-50"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                      <span>Remove</span>
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Landlords Table (hidden md:block) */}
+          <div className="hidden md:block bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-2xs">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 text-[11px] font-bold uppercase tracking-wider">
@@ -566,8 +635,40 @@ export const AdminDashboard: React.FC = () => {
             </div>
           )}
 
-          {/* Students Table */}
-          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-2xs">
+          {/* Students Mobile Cards (md:hidden) */}
+          <div className="space-y-3 md:hidden">
+            {students.map((student) => (
+              <div key={student.id} className="bg-white rounded-xl border border-slate-200 p-4 shadow-2xs space-y-2.5">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h4 className="font-bold text-slate-900 text-xs">{student.name}</h4>
+                    <p className="text-[11px] font-mono text-purple-700 font-bold">{student.studentNumber || 'No Reg No.'}</p>
+                  </div>
+                  <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0">
+                    <CheckCircle2 className="w-3 h-3" />
+                    Verified
+                  </span>
+                </div>
+                <div className="text-[11px] text-slate-500 truncate">{student.email}</div>
+                <div className="pt-2 border-t border-slate-100 flex justify-end">
+                  <button
+                    onClick={() => {
+                      if (window.confirm(`Are you sure you want to remove student "${student.name}"?`)) {
+                        removeStudent(student.id);
+                      }
+                    }}
+                    className="text-red-600 hover:text-red-800 font-bold text-xs flex items-center gap-1 px-2 py-1 rounded hover:bg-red-50"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                    <span>Remove Student</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Students Table (hidden md:block) */}
+          <div className="hidden md:block bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-2xs">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 text-[11px] font-bold uppercase tracking-wider">
@@ -630,7 +731,56 @@ export const AdminDashboard: React.FC = () => {
             </p>
           </div>
 
-          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-2xs">
+          {/* Listings Mobile Cards (md:hidden) */}
+          <div className="space-y-3 md:hidden">
+            {listings.map((listing) => (
+              <div key={listing.id} className="bg-white rounded-xl border border-slate-200 p-4 shadow-2xs space-y-2.5">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h4 className="font-bold text-slate-900 text-xs line-clamp-1">{listing.title}</h4>
+                    <p className="text-[11px] text-slate-500">{listing.suburb} · Landlord: {listing.landlordName}</p>
+                  </div>
+                  <span className="text-xs font-black text-slate-900 shrink-0">
+                    ${listing.pricePerMonthUsd}/mo
+                  </span>
+                </div>
+
+                <div className="text-[11px] text-slate-400 truncate">{listing.address}</div>
+
+                <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+                  <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${
+                    listing.status === 'active'
+                      ? 'bg-emerald-50 text-emerald-700'
+                      : 'bg-amber-50 text-amber-700'
+                  }`}>
+                    {listing.status.toUpperCase()}
+                  </span>
+
+                  <div className="flex items-center gap-3 text-xs">
+                    <button
+                      onClick={() => setSelectedListing(listing)}
+                      className="text-purple-600 hover:text-purple-800 font-bold"
+                    >
+                      View
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (window.confirm(`Delete listing "${listing.title}"?`)) {
+                          deleteListing(listing.id);
+                        }
+                      }}
+                      className="text-red-600 hover:text-red-800 font-bold"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Listings Table (hidden md:block) */}
+          <div className="hidden md:block bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-2xs">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 text-[11px] font-bold uppercase tracking-wider">

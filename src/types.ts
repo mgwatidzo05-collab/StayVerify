@@ -12,9 +12,9 @@ export interface User {
   email: string;
   role: UserRole;
   avatarUrl?: string;
-  phone?: string; // Private by default (NFR-02)
+  phone?: string; // Private by default
   isPhoneVisibleToMatch?: boolean;
-  studentNumber?: string; // e.g. N0231498B for NUST (FR-01)
+  studentNumber?: string; // Student Registration Number (e.g. N0231498B for NUST)
   institution?: string; // e.g. National University of Science and Technology
   isStudentVerified?: boolean;
   landlordVerificationTier?: VerificationTier;
@@ -44,7 +44,7 @@ export interface PhysicalVerificationVisit {
   listingTitle: string;
   landlordId: string;
   inspectorName: string;
-  inspectorId: string; // Campus Housing Officer (FR-06)
+  inspectorId: string; // Campus Housing Inspector
   visitDate: string;
   status: 'passed' | 'failed' | 'scheduled';
   findings: string;
@@ -67,7 +67,7 @@ export interface TimestampedMedia {
   url: string;
   caption: string;
   isWalkthroughVideo?: boolean;
-  timestamp: string; // EXIF or verified capture date
+  timestamp: string; // Verified capture date
   cameraMetadataVerified: boolean;
   isOriginalChecked: boolean;
 }
@@ -85,7 +85,9 @@ export interface Listing {
   description: string;
   address: string;
   suburb: string; // e.g. Riverside, Selborne Park, Matsheumhlope, Woodlands, Bulawayo CBD
-  googleMapUrl?: string; // Google Maps location URL, pin link, or coordinates entered by landlord
+  googleMapUrl?: string; // Google Maps location URL or share pin
+  isMapVerified?: boolean; // Verified via map location/GPS pin
+  coordinates?: { lat: number; lng: number }; // Geocoded or map-pinned coordinates
   distanceToCampusKm: number; // e.g. 1.2 km to NUST main gate
   walkingMinutes: number;
   pricePerMonthUsd: number;
@@ -114,7 +116,7 @@ export interface Review {
   listingId: string;
   studentId: string;
   studentName: string;
-  isVerifiedPastTenant: boolean; // FR-19 (tied to confirmed tenancy)
+  isVerifiedPastTenant: boolean; // Tied to confirmed student tenancy
   tenancyPeriod: string; // e.g. "Feb 2025 - Nov 2025"
   rating: number; // 1-5
   subRatings: {
@@ -152,7 +154,7 @@ export interface Conversation {
   lastMessageTimestamp: string;
   unreadCountStudent: number;
   unreadCountLandlord: number;
-  hasLandlordPendingReport?: boolean; // FR-15 notification
+  hasLandlordPendingReport?: boolean;
 }
 
 export type ScamReportReason =
@@ -188,7 +190,7 @@ export interface ScamReport {
   status: ReportResolutionStatus;
   adminNotes?: string;
   handledByAdminId?: string;
-  isThresholdAutoSuspension?: boolean; // FR-18 trigger
+  isThresholdAutoSuspension?: boolean;
   createdAt: string;
   resolvedAt?: string;
 }

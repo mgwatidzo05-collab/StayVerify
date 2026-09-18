@@ -115,9 +115,9 @@ interface AppContextType {
   auditLogs: AuditLog[];
   logAuditAction: (actionType: AuditLog['actionType'], targetId: string, targetType: AuditLog['targetEntityType'], details: string) => void;
 
-  // Active view / navigation
-  activeTab: 'browse' | 'smart_match' | 'messages' | 'landlord_portal' | 'admin_portal' | 'housing_analytics' | 'roommates';
-  setActiveTab: (tab: 'browse' | 'smart_match' | 'messages' | 'landlord_portal' | 'admin_portal' | 'housing_analytics' | 'roommates') => void;
+  // Active view / navigation (Strictly 3 Portals: Student, Landlord, Admin)
+  activeTab: 'browse' | 'student_portal' | 'messages' | 'landlord_portal' | 'admin_portal';
+  setActiveTab: (tab: 'browse' | 'student_portal' | 'messages' | 'landlord_portal' | 'admin_portal') => void;
 
   // Modal / Detail state
   selectedListing: Listing | null;
@@ -189,7 +189,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>(() => loadFromStorage('audit_logs', INITIAL_AUDIT_LOGS));
   const [studentPreferences, setStudentPreferences] = useState<StudentPreferences>(() => loadFromStorage('student_prefs', DEFAULT_STUDENT_PREFERENCES));
 
-  const [activeTab, setActiveTab] = useState<'browse' | 'smart_match' | 'messages' | 'landlord_portal' | 'admin_portal' | 'housing_analytics' | 'roommates'>('browse');
+  const [activeTab, setActiveTab] = useState<'browse' | 'student_portal' | 'messages' | 'landlord_portal' | 'admin_portal'>('browse');
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
@@ -441,7 +441,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (target) {
       setCurrentUser(target);
       if (target.role === 'admin') setActiveTab('admin_portal');
-      else if (target.role === 'housing_office') setActiveTab('housing_analytics');
       else if (target.role === 'landlord') setActiveTab('landlord_portal');
       else setActiveTab('browse');
     }
@@ -452,13 +451,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (sampleUserForRole) {
       setCurrentUser(sampleUserForRole);
       if (role === 'admin') setActiveTab('admin_portal');
-      else if (role === 'housing_office') setActiveTab('housing_analytics');
       else if (role === 'landlord') setActiveTab('landlord_portal');
       else setActiveTab('browse');
     }
   };
 
-  // Anti-scam duplicate/flagged listing check (FR-12)
+  // Anti-scam duplicate/flagged listing check
   const checkDuplicateOrFlaggedListing = (title: string, address: string) => {
     const lowerTitle = title.toLowerCase();
     const lowerAddress = address.toLowerCase();
@@ -472,14 +470,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (suspiciousMatch) {
       return {
         isFlagged: true,
-        reason: `Address or title matches a previously reported/suspended fraudulent listing (${suspiciousMatch.title}). Admin investigation required before publishing (FR-12).`
+        reason: `Address or title matches a previously reported/suspended fraudulent listing (${suspiciousMatch.title}). Admin investigation required before publishing.`
       };
     }
     return { isFlagged: false };
   };
 
   const addListing = (listingData: Omit<Listing, 'id' | 'createdAt' | 'updatedAt' | 'reportCount' | 'viewsCount' | 'ratingAverage' | 'ratingCount'>) => {
-    // Check FR-12
+    // Duplicate safety check
     const dupCheck = checkDuplicateOrFlaggedListing(listingData.title, listingData.address);
     if (dupCheck.isFlagged) {
       logAuditAction('listing_auto_suspended', 'temp-dup', 'listing', `Duplicate/flagged listing blocked during creation attempt: ${dupCheck.reason}`);
@@ -583,7 +581,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setPhysicalVisits(prev => [newVisit, ...prev]);
 
     if (visitData.status === 'passed') {
-      // Upgrade listing to physically verified (FR-06)
+      // Upgrade listing to physically verified
       setListings(prev => prev.map(l => l.id === visitData.listingId ? {
         ...l,
         verificationBadge: 'physically_verified',
@@ -599,7 +597,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
-  // Safe In-Platform Messaging with Anti-Scam Keyword Scanner (FR-13, FR-14, FR-20)
+  // Safe In-Platform Messaging with Anti-Scam Keyword Scanner
   const sendMessage = (conversationId: string, text: string) => {
     const lowerText = text.toLowerCase();
     const detectedKeywords = SCAM_KEYWORDS.filter(k => lowerText.includes(k));
@@ -665,7 +663,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return newConv.id;
   };
 
-  // Scam Reporting & Threshold Suspension (FR-16, FR-17, FR-18)
+  // Scam Reporting & Automated Threshold Suspension
   const submitScamReport = (data: {
     targetListingId?: string;
     targetListingTitle?: string;
@@ -712,7 +710,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       createdAt: new Date().toISOString()
     };
 
-    // Check report threshold for listing (FR-18)
+    // Check report threshold for listing
     let autoSuspended = false;
     if (data.targetListingId) {
       const existingReportsCount = reports.filter(r => r.targetListingId === data.targetListingId).length + 1;
@@ -724,9 +722,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           ...l,
           status: 'suspended_under_review',
           reportCount: existingReportsCount,
-          scamWarningFlags: [...(l.scamWarningFlags || []), `Accumulated ${existingReportsCount} fraud reports (Auto-Suspended by Shield FR-18)`]
+          scamWarningFlags: [...(l.scamWarningFlags || []), `Accumulated ${existingReportsCount} fraud reports (Suspended by Safety System)`]
         } : l));
-        logAuditAction('listing_auto_suspended', data.targetListingId, 'listing', `Auto-suspended listing "${data.targetListingTitle}" after accumulating ${existingReportsCount} scam reports (FR-18).`);
+        logAuditAction('listing_auto_suspended', data.targetListingId, 'listing', `Auto-suspended listing "${data.targetListingTitle}" after accumulating ${existingReportsCount} scam reports.`);
       } else {
         setListings(prev => prev.map(l => l.id === data.targetListingId ? { ...l, reportCount: l.reportCount + 1 } : l));
       }
@@ -795,7 +793,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setRoommates(prev => [newProfile, ...prev]);
   };
 
-  // Case Dossier Export for Police / Disciplinary Committee (FR-23)
+  // Case Dossier Export for Police / Disciplinary Committee
   const exportCaseDossier = (reportId: string) => {
     const report = reports.find(r => r.id === reportId);
     if (!report) return;
@@ -866,7 +864,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         ${report.attachedChatLogSnapshot?.messages ? `
           <div class="section">
-            <div class="section-title">Tamper-Evident In-Platform Chat Transcript (FR-14)</div>
+            <div class="section-title">Tamper-Evident In-Platform Chat Transcript</div>
             <div class="chat-box">
               ${report.attachedChatLogSnapshot.messages.map(m => `
                 <div class="chat-msg">
