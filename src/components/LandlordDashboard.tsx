@@ -93,7 +93,7 @@ export const LandlordDashboard: React.FC = () => {
 
     const res = loginLandlordWithKey(accessKeyInput);
     if (!res.success) {
-      setKeyError(res.error || 'Invalid Landlord Access Key. Please contact the Admin on WhatsApp (0712016200) if you require a key.');
+      setKeyError(res.error || 'Invalid Landlord Access Key. Please contact the Admin on WhatsApp if you require a key.');
     } else {
       setAccessKeyInput('');
     }
@@ -379,7 +379,7 @@ export const LandlordDashboard: React.FC = () => {
                     type="text"
                     value={accessKeyInput}
                     onChange={(e) => setAccessKeyInput(e.target.value)}
-                    placeholder="e.g. HOST-SIBANDA-77"
+                    placeholder="Enter Landlord Access Key"
                     className="w-full text-xs font-mono tracking-wider px-3.5 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 uppercase"
                     required
                   />
@@ -388,25 +388,6 @@ export const LandlordDashboard: React.FC = () => {
                     className="absolute right-2 top-2 bottom-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 rounded-lg transition"
                   >
                     Unlock
-                  </button>
-                </div>
-
-                {/* Quick test chips */}
-                <div className="mt-2.5 flex flex-wrap items-center gap-1.5 text-[11px]">
-                  <span className="text-slate-400 font-medium">Quick Test Keys:</span>
-                  <button
-                    type="button"
-                    onClick={() => setAccessKeyInput('HOST-SIBANDA-77')}
-                    className="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-mono font-bold px-2 py-0.5 rounded border border-emerald-200 transition"
-                  >
-                    HOST-SIBANDA-77
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setAccessKeyInput('HOST-KHUMALO-88')}
-                    className="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-mono font-bold px-2 py-0.5 rounded border border-emerald-200 transition"
-                  >
-                    HOST-KHUMALO-88
                   </button>
                 </div>
               </div>
@@ -430,13 +411,8 @@ export const LandlordDashboard: React.FC = () => {
                       className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition shadow-xs w-fit"
                     >
                       <MessageCircle className="w-4 h-4" />
-                      <span>Contact Admin on WhatsApp (0712016200)</span>
+                      <span>Contact Admin on WhatsApp</span>
                     </a>
-
-                    <div className="flex items-center gap-1.5 text-xs text-slate-700 font-medium bg-white px-3 py-1.5 rounded-lg border border-emerald-200/80">
-                      <span className="text-slate-500">WhatsApp:</span>
-                      <span className="font-mono font-bold text-emerald-800">0712016200</span>
-                    </div>
                   </div>
                 </div>
               </div>

@@ -9,6 +9,7 @@ import { ListingCard } from './components/ListingCard';
 import { ListingDetailModal } from './components/ListingDetailModal';
 import { ReportScamModal } from './components/ReportScamModal';
 import { SRSTraceabilityModal } from './components/SRSTraceabilityModal';
+import { SystemPresentationModal } from './components/SystemPresentationModal';
 import { AuthModal } from './components/AuthModal';
 import { MessagingCenter } from './components/MessagingCenter';
 import { LandlordDashboard } from './components/LandlordDashboard';
@@ -24,7 +25,8 @@ import {
   FileText,
   GraduationCap,
   LogOut,
-  MessageSquare
+  MessageSquare,
+  Presentation
 } from 'lucide-react';
 
 const MainContent: React.FC = () => {
@@ -37,6 +39,7 @@ const MainContent: React.FC = () => {
     setIsSrsModalOpen,
     setIsReportModalOpen,
     setReportTargetListing,
+    setIsPresentationModalOpen,
     viewMode,
     studentUser,
     logoutStudent,
@@ -311,7 +314,16 @@ const MainContent: React.FC = () => {
             <span className="font-bold text-slate-800">StayVerify</span> — Built for NUST students in Bulawayo to find safe, verified off-campus housing.
           </div>
 
-          <div className="flex items-center gap-4 text-xs">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs">
+            <button
+              onClick={() => setIsPresentationModalOpen(true)}
+              className="text-rose-600 hover:text-rose-700 font-bold flex items-center gap-1.5 bg-rose-50 hover:bg-rose-100 px-2.5 py-1 rounded-lg border border-rose-200 transition"
+              title="View presentation slide deck or download PDF"
+            >
+              <Presentation className="w-3.5 h-3.5" />
+              <span>System Presentation (PDF)</span>
+            </button>
+            <span>&bull;</span>
             <button
               onClick={() => {
                 setReportTargetListing(null);
@@ -342,6 +354,7 @@ const MainContent: React.FC = () => {
 
       <ReportScamModal />
       <SRSTraceabilityModal />
+      <SystemPresentationModal />
       <AuthModal />
       <ShortlistDrawer />
       <SupportModal />

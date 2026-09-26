@@ -15,7 +15,8 @@ import {
   ChevronRight,
   LogOut,
   MapPin,
-  HelpCircle
+  HelpCircle,
+  Presentation
 } from 'lucide-react';
 
 interface MobilePortalDrawerProps {
@@ -39,7 +40,8 @@ export const MobilePortalDrawer: React.FC<MobilePortalDrawerProps> = ({
     savedListingIds,
     setIsShortlistOpen,
     setIsReportModalOpen,
-    setReportTargetListing
+    setReportTargetListing,
+    setIsPresentationModalOpen
   } = useApp();
 
   if (!isOpen) return null;
@@ -227,6 +229,23 @@ export const MobilePortalDrawer: React.FC<MobilePortalDrawerProps> = ({
                   {savedListingIds.length}
                 </span>
               )}
+            </button>
+
+            {/* System Presentation & PDF */}
+            <button
+              onClick={() => {
+                setIsPresentationModalOpen(true);
+                onClose();
+              }}
+              className="w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-bold text-slate-800 bg-rose-50/50 hover:bg-rose-50 border border-rose-100 transition"
+            >
+              <div className="flex items-center gap-2">
+                <Presentation className="w-4 h-4 text-rose-600" />
+                <span>System Presentation & PDF</span>
+              </div>
+              <span className="text-[10px] bg-rose-600 text-white font-black px-1.5 py-0.5 rounded">
+                8 Slides
+              </span>
             </button>
 
             {/* Report a Scammer */}

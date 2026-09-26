@@ -25,7 +25,7 @@ export const AuthModal: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  const [studentNumber, setStudentNumber] = useState('N0248912K');
+  const [studentNumber, setStudentNumber] = useState('');
   const [institution, setInstitution] = useState('National University of Science & Technology (NUST)');
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 

@@ -13,7 +13,8 @@ import {
   GraduationCap,
   Key,
   Menu,
-  MessageSquare
+  MessageSquare,
+  Presentation
 } from 'lucide-react';
 
 export const Header: React.FC = () => {
@@ -27,7 +28,8 @@ export const Header: React.FC = () => {
     isAdminAuthenticated,
     logoutAdmin,
     savedListingIds,
-    setIsShortlistOpen
+    setIsShortlistOpen,
+    setIsPresentationModalOpen
   } = useApp();
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -123,6 +125,17 @@ export const Header: React.FC = () => {
             <div className="flex items-center gap-1.5 sm:gap-2">
               {/* Install App Button on Desktop/Header */}
               <PWAInstallButton variant="header" className="hidden sm:flex" />
+
+              {/* Presentation & PDF Button */}
+              <button
+                id="header-presentation-btn"
+                onClick={() => setIsPresentationModalOpen(true)}
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition shadow-2xs"
+                title="System Presentation Slide Deck & PDF Export"
+              >
+                <Presentation className="w-3.5 h-3.5 text-rose-600" />
+                <span>Presentation PDF</span>
+              </button>
 
               {/* Shortlist icon */}
               <button

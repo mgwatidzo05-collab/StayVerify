@@ -255,12 +255,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // 1. Student Authentication & Registration
   const loginStudent = (identifier: string, password?: string) => {
     const clean = identifier.trim().toLowerCase();
-    if (clean === 'demo') {
-      const demoStudent = allUsers.find(u => u.role === 'student') || INITIAL_USERS[0];
-      setStudentUser(demoStudent);
-      setCurrentUser(demoStudent);
-      return { success: true, user: demoStudent };
-    }
 
     const student = allUsers.find(u =>
       u.role === 'student' &&
@@ -307,7 +301,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       role: 'student',
       phone: data.phone?.trim() || '+263 77 000 0000',
       isStudentVerified: true,
-      password: data.password || 'student123',
+      password: data.password || '',
       createdAt: new Date().toISOString()
     };
 
@@ -397,7 +391,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       phone: data.phone?.trim() || '+263 77 000 0000',
       role: 'student',
       isStudentVerified: true,
-      password: data.password || 'student123',
+      password: data.password || '',
       createdAt: new Date().toISOString()
     };
 

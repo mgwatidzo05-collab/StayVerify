@@ -151,23 +151,14 @@ export const AdminDashboard: React.FC = () => {
 
             <form onSubmit={handleAdminLogin} className="space-y-4">
               <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs font-bold text-slate-700">
-                    Administrator Password
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setPasswordInput('admin123')}
-                    className="text-[11px] text-purple-700 font-bold hover:underline bg-purple-50 px-2 py-0.5 rounded"
-                  >
-                    Use Demo: admin123
-                  </button>
-                </div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  Administrator Password
+                </label>
                 <input
                   type="password"
                   value={passwordInput}
                   onChange={(e) => setPasswordInput(e.target.value)}
-                  placeholder="Enter password"
+                  placeholder="Enter administrator password"
                   className="w-full text-xs px-3.5 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   required
                 />

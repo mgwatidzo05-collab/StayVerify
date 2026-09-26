@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import { GraduationCap, ShieldCheck, ArrowRight, UserPlus, Lock, CheckCircle2, AlertCircle } from 'lucide-react';
 
 export const StudentLogin: React.FC = () => {
-  const { loginStudent, registerStudent, allUsers } = useApp();
+  const { loginStudent, registerStudent } = useApp();
 
   const [mode, setMode] = useState<'login' | 'register'>('login');
   
@@ -20,8 +20,6 @@ export const StudentLogin: React.FC = () => {
   const [regPhone, setRegPhone] = useState('');
   const [regPassword, setRegPassword] = useState('');
 
-  const students = allUsers.filter(u => u.role === 'student');
-
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -33,14 +31,6 @@ export const StudentLogin: React.FC = () => {
     const res = loginStudent(identifier, password);
     if (!res.success) {
       setError(res.error || 'Student login failed');
-    }
-  };
-
-  const handleDemoLogin = (studentIdOrEmail: string) => {
-    setError(null);
-    const res = loginStudent(studentIdOrEmail);
-    if (!res.success) {
-      setError(res.error || 'Demo login failed');
     }
   };
 
@@ -57,7 +47,7 @@ export const StudentLogin: React.FC = () => {
       studentNumber: regStudentNumber,
       email: regEmail,
       phone: regPhone || '+263 77 123 4567',
-      password: regPassword || 'student123'
+      password: regPassword || undefined
     });
 
     if (!res.success) {
@@ -145,12 +135,9 @@ export const StudentLogin: React.FC = () => {
               </div>
 
               <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs font-bold text-slate-700">
-                    Password
-                  </label>
-                  <span className="text-[11px] text-slate-400">Default: student123</span>
-                </div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Password
+                </label>
                 <input
                   type="password"
                   value={password}
@@ -167,31 +154,6 @@ export const StudentLogin: React.FC = () => {
                 <span>Log In & Browse Rooms</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
-
-              {/* Demo 1-Click Login Helper for Reviewers */}
-              <div className="pt-4 border-t border-slate-100">
-                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 text-center">
-                  Quick Demo Student Accounts
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {students.slice(0, 2).map((s) => (
-                    <button
-                      key={s.id}
-                      type="button"
-                      onClick={() => handleDemoLogin(s.email)}
-                      className="p-2.5 rounded-xl border border-slate-200 hover:border-rose-300 hover:bg-rose-50 text-left transition flex items-center gap-2.5"
-                    >
-                      <div className="w-7 h-7 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center font-bold text-xs shrink-0">
-                        {s.name.charAt(0)}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-xs font-bold text-slate-900 truncate">{s.name}</p>
-                        <p className="text-[10px] text-slate-500">{s.studentNumber || 'Student'}</p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
             </form>
           ) : (
             <form onSubmit={handleRegister} className="space-y-3.5">
@@ -260,7 +222,7 @@ export const StudentLogin: React.FC = () => {
                   type="password"
                   value={regPassword}
                   onChange={(e) => setRegPassword(e.target.value)}
-                  placeholder="Choose a password (default: student123)"
+                  placeholder="Create a secure password"
                   className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500"
                 />
               </div>
